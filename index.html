@@ -1,813 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Jalori Line — 9-Day Himachal Winter Ride</title>
-<meta name="description" content="Jibhi to Barot on a Himalayan 411. A 9-day winter motorcycle expedition itinerary.">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Jalori Line — Winter Expedition</title>
+<meta name="description" content="Offline-first field companion for the 9-day Himachal winter motorcycle expedition." />
+<meta name="theme-color" content="#0F172A" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/favicon-32.png" />
+<link rel="apple-touch-icon" href="icons/icon-apple-touch.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Jalori Line" />
 
+<!-- Fonts: display (tactical), body, ATLA ink -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Cinzel:wght@500;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
 
-<style>
-  :root{
-    --bg:#0a0f1c;
-    --bg-deep:#060910;
-    --surface:#121a2b;
-    --surface-2:#182238;
-    --line:#26314a;
-    --line-soft:#1b2439;
-    --text:#e9edf6;
-    --text-dim:#96a2ba;
-    --text-faint:#5c6884;
-    --ember:#e8a33d;
-    --ember-dim:#8a6329;
-    --ice:#6fb3e0;
-    --rust:#c9703f;
-    --snow:#f5f7fb;
-    --good:#5fb88b;
-  }
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:'Inter',system-ui,sans-serif;
-    -webkit-font-smoothing:antialiased;
-    overflow-x:hidden;
-  }
-  ::selection{background:var(--ember);color:#1a1200;}
-  h1,h2,h3,.display{font-family:'Bebas Neue',sans-serif;letter-spacing:0.02em;}
-  .cond{font-family:'Barlow Condensed',sans-serif;}
-  .mono{font-family:'JetBrains Mono',monospace;}
+<!-- Tailwind (CDN) -->
+<script src="https://cdn.tailwindcss.com"></script>
 
-  /* ---------- squiggle underline, the signature mark ---------- */
-  .squiggle{
-    position:relative;
-    display:inline-block;
-  }
-  .squiggle::after{
-    content:"";
-    position:absolute;
-    left:-2%; right:-2%; bottom:-0.14em;
-    height:0.16em;
-    background-repeat:repeat-x;
-    background-size:22px 10px;
-    background-position:0 0;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='10' viewBox='0 0 22 10'><path d='M0 6 Q 5.5 0 11 6 T 22 6' fill='none' stroke='%23E8A33D' stroke-width='2.4' stroke-linecap='round'/></svg>");
-    opacity:0.85;
-  }
-  .squiggle.ice::after{
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='10' viewBox='0 0 22 10'><path d='M0 6 Q 5.5 0 11 6 T 22 6' fill='none' stroke='%236FB3E0' stroke-width='2.4' stroke-linecap='round'/></svg>");
-  }
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  /* ---------- starfield ---------- */
-  #stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.9;}
-
-  .wrap{position:relative;z-index:1;}
-  .maxw{max-width:920px;margin:0 auto;padding:0 20px;}
-
-  /* ---------- top nav ---------- */
-  header.top{
-    position:sticky; top:0; z-index:50;
-    backdrop-filter:blur(14px);
-    background:rgba(10,15,28,0.78);
-    border-bottom:1px solid var(--line-soft);
-  }
-  .navrow{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;max-width:920px;margin:0 auto;}
-  .brand{display:flex;align-items:center;gap:10px;}
-  .brand .mark{width:11px;height:11px;border-radius:50%;background:var(--ember);box-shadow:0 0 12px var(--ember);}
-  .brand span{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.14em;font-size:15px;text-transform:uppercase;color:var(--text);}
-  nav.tabs{display:flex;gap:4px;}
-  nav.tabs button{
-    background:transparent;border:1px solid transparent;color:var(--text-dim);
-    font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:0.06em;
-    font-size:14px;text-transform:uppercase;padding:8px 12px;border-radius:8px;cursor:pointer;
-    transition:all .2s;
-  }
-  nav.tabs button:hover{color:var(--text);}
-  nav.tabs button.active{color:var(--bg);background:var(--ember);}
-
-  @media (max-width:640px){
-    nav.tabs{display:none;}
-  }
-
-  /* bottom mobile nav */
-  nav.bottom{
-    display:none;
-    position:fixed; bottom:0; left:0; right:0; z-index:50;
-    background:rgba(10,15,28,0.92); backdrop-filter:blur(14px);
-    border-top:1px solid var(--line-soft);
-    padding:8px 10px calc(8px + env(safe-area-inset-bottom));
-    justify-content:space-around;
-  }
-  nav.bottom button{
-    background:none;border:none;color:var(--text-faint);
-    display:flex;flex-direction:column;align-items:center;gap:3px;
-    font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:0.05em;text-transform:uppercase;
-    padding:4px 8px;cursor:pointer;
-  }
-  nav.bottom button.active{color:var(--ember);}
-  nav.bottom svg{width:20px;height:20px;}
-  @media (max-width:640px){
-    nav.bottom{display:flex;}
-    body{padding-bottom:64px;}
-  }
-
-  .page{display:none;animation:fadein .35s ease;}
-  .page.active{display:block;}
-  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-
-  /* ---------- hero ---------- */
-  .hero{position:relative;padding:64px 20px 40px;text-align:left;}
-  .eyebrow{
-    font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ember);
-    letter-spacing:0.18em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;
-  }
-  .eyebrow .rule{height:1px;width:32px;background:var(--ember);opacity:.6;}
-  .hero h1{font-size:clamp(52px,11vw,96px);line-height:0.92;margin:0 0 6px;color:var(--snow);}
-  .hero h1 .sub{display:block;color:var(--text-faint);font-size:0.42em;letter-spacing:0.08em;}
-  .hero p.lede{font-family:'Barlow Condensed',sans-serif;font-size:20px;color:var(--text-dim);max-width:560px;margin:18px 0 0;line-height:1.4;}
-
-  .stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:34px;}
-  .stat{background:var(--surface);padding:16px 14px;}
-  .stat .k{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
-  .stat .v{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:19px;color:var(--text);}
-  @media (max-width:640px){.stat-strip{grid-template-columns:repeat(2,1fr);}}
-
-  /* ---------- elevation profile — signature element ---------- */
-  .elev-block{margin:44px 0 8px;}
-  .elev-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
-  .elev-head h3{font-size:26px;margin:0;color:var(--snow);}
-  .elev-head span{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-faint);}
-  .elev-wrap{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 14px 10px;}
-  #elevSvg{width:100%;height:auto;display:block;}
-  .elev-labels{display:flex;justify-content:space-between;padding:0 4px;margin-top:2px;}
-  .elev-labels span{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--text-faint);text-align:center;flex:1;}
-
-  section.block{padding:36px 0;}
-  .block-head{margin-bottom:18px;}
-  .block-head h2{font-size:38px;color:var(--snow);margin:0;}
-  .block-head p{color:var(--text-dim);font-family:'Barlow Condensed',sans-serif;font-size:17px;margin:4px 0 0;}
-
-  /* cards */
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-  @media (max-width:640px){.grid2{grid-template-columns:1fr;}}
-
-  .btn{
-    display:inline-flex;align-items:center;gap:8px;
-    font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;font-size:15px;
-    padding:12px 18px;border-radius:10px;text-decoration:none;cursor:pointer;border:1px solid transparent;
-    transition:transform .15s ease, filter .15s ease;
-  }
-  .btn:active{transform:scale(0.97);}
-  .btn.ember{background:var(--ember);color:#1a1200;}
-  .btn.ember:hover{filter:brightness(1.08);}
-  .btn.ghost{background:transparent;border-color:var(--line);color:var(--text);}
-  .btn.ghost:hover{border-color:var(--ice);color:var(--ice);}
-  .btn.ice{background:var(--ice);color:#08202f;}
-
-  /* ---------- accordion / itinerary ---------- */
-  .day{
-    border:1px solid var(--line); border-radius:16px; margin-bottom:12px; overflow:hidden;
-    background:var(--surface);
-  }
-  .day-head{
-    display:flex;align-items:center;gap:16px;padding:16px 18px;cursor:pointer;user-select:none;
-  }
-  .day-num{
-    font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--text-faint);width:38px;flex-shrink:0;
-  }
-  .day.open .day-num{color:var(--ember);}
-  .day-title-wrap{flex:1;min-width:0;}
-  .day-title-wrap .loc{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:var(--snow);}
-  .day-title-wrap .tag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-faint);margin-top:2px;}
-  .alt-badge{
-    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ice);border:1px solid var(--line);
-    padding:4px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;
-  }
-  .chev{width:16px;height:16px;flex-shrink:0;color:var(--text-faint);transition:transform .25s ease;}
-  .day.open .chev{transform:rotate(180deg);color:var(--ember);}
-
-  .day-body{max-height:0;overflow:hidden;transition:max-height .38s ease;}
-  .day.open .day-body{max-height:1400px;}
-  .day-body-inner{padding:2px 18px 22px;border-top:1px solid var(--line-soft);}
-
-  .field{margin-top:16px;}
-  .field .lbl{font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;display:flex;align-items:center;gap:7px;}
-  .lbl.ride{color:var(--ice);} .lbl.explore{color:var(--good);} .lbl.stay{color:var(--ember);} .lbl.sky{color:#a48ee8;} .lbl.bonus{color:var(--rust);}
-  .field p{margin:0;font-size:15px;line-height:1.55;color:var(--text-dim);}
-  .field p b{color:var(--text);font-weight:600;}
-
-  .stay-link{
-    display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:12px;
-    color:var(--text-faint);border:1px dashed var(--line);padding:5px 10px;border-radius:8px;cursor:pointer;
-  }
-  .stay-link.linked{color:var(--ember);border-color:var(--ember-dim);border-style:solid;}
-  .stay-link svg{width:12px;height:12px;}
-
-  .bonus-box{
-    margin-top:16px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;
-  }
-  .bonus-row{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--text-dim);line-height:1.5;}
-  .bonus-row+.bonus-row{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);}
-  .bonus-row .dot{width:6px;height:6px;border-radius:50%;margin-top:6px;flex-shrink:0;}
-  .bonus-row.offbeat .dot{background:var(--rust);}
-  .bonus-row.budget .dot{background:var(--good);}
-  .bonus-row b{color:var(--text);}
-
-  /* ---------- budget page ---------- */
-  .calc{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;}
-  .calc-controls{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px;}
-  @media (max-width:560px){.calc-controls{grid-template-columns:1fr;}}
-  .ctrl{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;}
-  .ctrl .lbl{font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;color:var(--text-faint);letter-spacing:.08em;margin-bottom:10px;}
-  .stepper{display:flex;align-items:center;gap:14px;}
-  .stepper button{
-    width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--text);
-    font-size:18px;cursor:pointer;line-height:1;
-  }
-  .stepper button:hover{border-color:var(--ember);color:var(--ember);}
-  .stepper .val{font-family:'Bebas Neue',sans-serif;font-size:26px;min-width:30px;text-align:center;}
-  input[type=range]{width:100%;accent-color:var(--ember);margin-top:4px;}
-  .range-val{font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--ember);margin-top:6px;}
-
-  table.budget{width:100%;border-collapse:collapse;font-family:'Barlow Condensed',sans-serif;font-size:16.5px;}
-  table.budget th{
-    text-align:left;font-family:'JetBrains Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;
-    color:var(--text-faint);padding:8px 4px;border-bottom:1px solid var(--line);font-weight:500;
-  }
-  table.budget td{padding:11px 4px;border-bottom:1px solid var(--line-soft);color:var(--text);}
-  table.budget td:last-child, table.budget th:last-child{text-align:right;font-family:'JetBrains Mono',monospace;font-size:14px;}
-  table.budget tr.total td{border-bottom:none;padding-top:16px;font-weight:700;font-size:19px;color:var(--ember);}
-  table.budget tr.total td:last-child{font-family:'JetBrains Mono',monospace;}
-
-  .grand{
-    margin-top:18px;display:flex;justify-content:space-between;align-items:center;
-    background:linear-gradient(120deg, rgba(232,163,61,0.14), rgba(111,179,224,0.08));
-    border:1px solid var(--ember-dim);border-radius:14px;padding:18px 20px;
-  }
-  .grand .lbl{font-family:'Barlow Condensed',sans-serif;font-size:16px;color:var(--text-dim);}
-  .grand .amt{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--ember);}
-
-  /* ---------- links page ---------- */
-  .linklist{display:flex;flex-direction:column;gap:10px;}
-  .linkcard{
-    display:flex;align-items:center;justify-content:space-between;gap:14px;
-    background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;cursor:pointer;
-  }
-  .linkcard .lc-left{display:flex;align-items:center;gap:14px;min-width:0;}
-  .linkcard .lc-icon{width:38px;height:38px;border-radius:10px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ember);}
-  .linkcard .lc-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;color:var(--snow);}
-  .linkcard .lc-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-faint);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px;}
-  .linkcard .lc-sub.linked{color:var(--ember);}
-  .goarrow{width:16px;height:16px;color:var(--text-faint);flex-shrink:0;}
-
-  footer.foot{padding:50px 20px 40px;text-align:center;color:var(--text-faint);font-family:'JetBrains Mono',monospace;font-size:11.5px;}
-
-  /* ---------- modal ---------- */
-  .modal-bg{
-    position:fixed;inset:0;background:rgba(4,6,12,0.72);backdrop-filter:blur(4px);z-index:100;
-    display:none;align-items:flex-end;justify-content:center;
-  }
-  .modal-bg.show{display:flex;}
-  @media (min-width:640px){.modal-bg{align-items:center;}}
-  .modal{
-    background:var(--surface);border:1px solid var(--line);border-radius:18px 18px 0 0;padding:22px;width:100%;max-width:440px;
-    animation:slideup .25s ease;
-  }
-  @media (min-width:640px){.modal{border-radius:18px;}}
-  @keyframes slideup{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-  .modal h4{margin:0 0 4px;font-size:24px;color:var(--snow);}
-  .modal p.hint{margin:0 0 14px;color:var(--text-faint);font-size:13px;}
-  .modal input{
-    width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;color:var(--text);
-    padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:14px;margin-bottom:14px;
-  }
-  .modal input:focus{outline:none;border-color:var(--ember);}
-  .modal-actions{display:flex;gap:10px;justify-content:flex-end;}
-  .modal-actions button{border:none;}
-  .toast{
-    position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
-    background:var(--ember);color:#1a1200;font-family:'Barlow Condensed',sans-serif;font-weight:700;
-    padding:10px 18px;border-radius:30px;font-size:14px;opacity:0;transition:all .25s ease;z-index:200;pointer-events:none;
-  }
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-  @media (min-width:640px){.toast{bottom:30px;}}
-</style>
+<link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body class="bg-slate-950 text-slate-100 font-body antialiased overscroll-none">
 
-<canvas id="stars"></canvas>
+<!-- ============ APP SHELL ============ -->
+<div id="app" class="min-h-screen flex flex-col">
 
-<div class="wrap">
-
-  <header class="top">
-    <div class="navrow">
-      <div class="brand"><span class="mark"></span><span>Jalori Line</span></div>
-      <nav class="tabs">
-        <button data-page="overview" class="active">Overview</button>
-        <button data-page="itinerary">Itinerary</button>
-        <button data-page="budget">Budget</button>
-        <button data-page="links">Links</button>
-      </nav>
+  <!-- Top bar -->
+  <header class="app-header sticky top-0 z-40">
+    <div class="flex items-center justify-between px-4 py-3">
+      <div class="flex items-center gap-2">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" class="text-ice">
+          <path d="M2 20L9 8L13 14L16 9L22 20H2Z" fill="currentColor" opacity="0.9"/>
+          <circle cx="17" cy="5" r="2" fill="#FB923C"/>
+        </svg>
+        <div class="leading-tight">
+          <h1 class="font-display tracking-wide text-lg text-slate-50">JALORI LINE</h1>
+          <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 -mt-0.5">Winter Expedition · 18–26 Jan</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="connStatus" class="conn-pill" title="Connectivity">
+          <span class="dot"></span><span class="txt">OFFLINE READY</span>
+        </span>
+        <button id="installBtn" class="hidden install-btn">Install</button>
+      </div>
     </div>
+    <!-- day progress rail -->
+    <div id="dayRail" class="day-rail"></div>
   </header>
 
-  <!-- ================= OVERVIEW ================= -->
-  <main class="page active" id="page-overview">
-    <div class="hero maxw">
-      <div class="eyebrow"><span class="rule"></span>9 DAYS · 2 RIDERS · 1 HIMALAYAN 411</div>
-      <h1>JIBHI<span class="sub">to</span>BAROT<span class="sub">a winter dark-sky expedition through Himachal's back valleys</span></h1>
-      <p class="lede">Offbeat snow trails, high-altitude passes, wood-and-stone architecture, and homestays with nothing between you and the <span class="squiggle">winter Milky Way</span>. Eight nights, one shared Royal Enfield, zero light pollution.</p>
+  <!-- Main view -->
+  <main id="mainView" class="flex-1 pb-24 px-4 pt-4 max-w-2xl w-full mx-auto"></main>
 
-      <div class="stat-strip">
-        <div class="stat"><div class="k">Dates</div><div class="v">18 – 26 Jan</div></div>
-        <div class="stat"><div class="k">Party</div><div class="v">2 Pax</div></div>
-        <div class="stat"><div class="k">Ride</div><div class="v">Himalayan 411</div></div>
-        <div class="stat"><div class="k">Peak Alt.</div><div class="v">3,120 m</div></div>
-      </div>
-    </div>
-
-    <div class="maxw elev-block">
-      <div class="elev-head">
-        <h3 class="squiggle ice">The Climb</h3>
-        <span>ALTITUDE, DAY BY DAY (M)</span>
-      </div>
-      <div class="elev-wrap">
-        <svg id="elevSvg" viewBox="0 0 900 220" preserveAspectRatio="none"></svg>
-        <div class="elev-labels" id="elevLabels"></div>
-      </div>
-    </div>
-
-    <div class="maxw block">
-      <div class="block-head"><h2>Flights</h2><p>IndiGo, non-stop, MAA ⇄ IXC</p></div>
-      <div class="grid2">
-        <div class="card">
-          <div class="field"><div class="lbl ride">Depart · Mon 18 Jan</div>
-            <p><b>08:35</b> MAA → <b>11:30</b> IXC<br>Non-stop · 2h55m</p>
-          </div>
-        </div>
-        <div class="card">
-          <div class="field"><div class="lbl ride">Return · Tue 26 Jan</div>
-            <p><b>12:05</b> IXC → <b>15:05</b> MAA<br>Non-stop · 3h00m</p>
-          </div>
-        </div>
-      </div>
-      <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;">
-        <a href="https://www.google.com/travel/flights" target="_blank" rel="noopener" class="btn ember">Track flight prices ↗</a>
-        <a href="https://www.goindigo.in" target="_blank" rel="noopener" class="btn ghost">IndiGo Airlines ↗</a>
-      </div>
-    </div>
-
-    <div class="maxw block">
-      <div class="block-head"><h2>The Machine</h2><p>Booked via Grand Bike Rental, Chandigarh</p></div>
-      <div class="card">
-        <div class="field"><div class="lbl stay">Royal Enfield Himalayan 411 BS6</div>
-          <p>Adventure tourer · <b>₹1,200/day</b> · pickup at Booth No. 1, Shiv Market, Sector 42-C, Chandigarh 160036.<br>8 days rental + accessories = <b>₹11,100</b> total, split two ways.</p>
-        </div>
-        <div class="stay-link" data-link-id="bike-rental" onclick="openLinkModal('bike-rental','Grand Bike Rental')" ondblclick="openLinkModal('bike-rental','Grand Bike Rental')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
-          <span class="ll-text">add booking link</span>
-        </div>
-        <div style="margin-top:14px;">
-          <a href="https://www.grandbikerentalchandigarh.com" target="_blank" rel="noopener" class="btn ember">Grand Bike Rental ↗</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="maxw block" style="padding-bottom:70px;">
-      <div class="block-head"><h2>Why This Route</h2></div>
-      <p style="font-family:'Barlow Condensed',sans-serif;font-size:18px;color:var(--text-dim);line-height:1.6;max-width:640px;">
-        Every stop on this loop was picked for one thing: a clear vertical view. Wooden balconies over the valley, riverside pebble beds, a vehicle-free meadow — the kind of dark sky you only get above 1,600 metres, far from any highway glow.
-      </p>
-    </div>
-  </main>
-
-  <!-- ================= ITINERARY ================= -->
-  <main class="page" id="page-itinerary">
-    <div class="maxw block" style="padding-top:40px;">
-      <div class="block-head"><h2>The Route</h2><p>Tap a day to expand · long-press a stay to attach your own booking link</p></div>
-      <div id="daysList"></div>
-    </div>
-  </main>
-
-  <!-- ================= BUDGET ================= -->
-  <main class="page" id="page-budget">
-    <div class="maxw block" style="padding-top:40px;">
-      <div class="block-head"><h2>Budget</h2><p>Adjust pax or daily food spend — the split recalculates live</p></div>
-
-      <div class="calc">
-        <div class="calc-controls">
-          <div class="ctrl">
-            <div class="lbl">Riders</div>
-            <div class="stepper">
-              <button onclick="changePax(-1)">−</button>
-              <div class="val" id="paxVal">2</div>
-              <button onclick="changePax(1)">+</button>
-            </div>
-          </div>
-          <div class="ctrl">
-            <div class="lbl">Food / person / day</div>
-            <input type="range" id="foodRange" min="150" max="800" step="10" value="394" oninput="recalc()">
-            <div class="range-val">₹<span id="foodVal">394</span></div>
-          </div>
-        </div>
-
-        <table class="budget">
-          <thead><tr><th>Item</th><th>Group Total</th><th>Per Person</th></tr></thead>
-          <tbody id="budgetBody"></tbody>
-          <tfoot>
-            <tr class="total"><td colspan="1">Total / person</td><td></td><td id="perPersonTotal">₹0</td></tr>
-          </tfoot>
-        </table>
-
-        <div class="grand">
-          <div class="lbl">Full group cost (<span id="grandPax">2</span> riders)</div>
-          <div class="amt" id="grandTotal">₹0</div>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- ================= LINKS ================= -->
-  <main class="page" id="page-links">
-    <div class="maxw block" style="padding-top:40px;padding-bottom:70px;">
-      <div class="block-head"><h2>Book It</h2><p>Tap to open · long-press or double-tap to attach your own link</p></div>
-      <div class="linklist" id="linksList"></div>
-    </div>
-  </main>
-
-  <footer class="foot">JALORI LINE · 9 DAYS · JAN 18–26 · CHANDIGARH LOOP</footer>
+  <!-- Bottom tab nav -->
+  <nav class="tab-nav">
+    <button class="tab-btn" data-tab="itinerary">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1zm2 4v2h10V8H7zm0 4v2h10v-2H7zm0 4v2h6v-2H7z"/></svg>
+      <span>Itinerary</span>
+    </button>
+    <button class="tab-btn" data-tab="checklist">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M9 11l-4 4-2-2 1.4-1.4L9 8.2l9.6-9.6L20 0z" transform="translate(0,2)"/><path fill="currentColor" d="M4 4h6v2H6v14h14v-4h2v6H4V4z"/></svg>
+      <span>Checklist</span>
+    </button>
+    <button class="tab-btn" data-tab="field">
+      <svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="currentColor" d="M13.5 13.5l-5 2.2 2.2-5 5-2.2z"/></svg>
+      <span>Field</span>
+    </button>
+    <button class="tab-btn" data-tab="scroll">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M4 4a2 2 0 012-2h9l5 5v13a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v16h12V8h-5V4H6z"/></svg>
+      <span>Scroll</span>
+    </button>
+    <button class="tab-btn" data-tab="journal">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 2l2.6 6.6L21 9l-5 4.4L17.5 20 12 16.6 6.5 20 8 13.4 3 9l6.4-.4z"/></svg>
+      <span>Journal</span>
+    </button>
+  </nav>
 </div>
 
-<nav class="bottom">
-  <button data-page="overview" class="active">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
-    Overview
-  </button>
-  <button data-page="itinerary">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 20l-5-2V4l5 2 6-2 5 2v14l-5-2-6 2z"/></svg>
-    Route
-  </button>
-  <button data-page="budget">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-    Budget
-  </button>
-  <button data-page="links">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>
-    Links
-  </button>
-</nav>
+<!-- ============ TEMPLATES ============ -->
 
-<!-- link-edit modal -->
-<div class="modal-bg" id="modalBg">
-  <div class="modal">
-    <h4 id="modalTitle">Add a link</h4>
-    <p class="hint">This is saved on your device only.</p>
-    <input type="url" id="modalInput" placeholder="https://...">
-    <div class="modal-actions">
-      <button class="btn ghost" onclick="closeLinkModal()">Cancel</button>
-      <button class="btn ember" onclick="saveLinkModal()">Save</button>
+<template id="tpl-day-card">
+  <article class="day-card" data-day="">
+    <button class="day-card__head">
+      <div class="day-card__badge"></div>
+      <div class="day-card__title-wrap">
+        <p class="day-card__date"></p>
+        <h3 class="day-card__title"></h3>
+        <p class="day-card__route"></p>
+      </div>
+      <svg class="day-card__chev" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M8.6 4.6L18 12l-9.4 9.4-1.4-1.4L15.2 12 7.2 6z"/></svg>
+    </button>
+    <div class="day-card__body">
+      <p class="day-card__desc"></p>
+      <div class="day-card__meta"></div>
+      <div class="day-card__stargazing"></div>
+      <div class="day-card__links"></div>
+      <button class="link-add-btn">+ Add booking / contact link</button>
+    </div>
+  </article>
+</template>
+
+<template id="tpl-link-chip">
+  <a class="link-chip" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M3.9 12a5 5 0 015-5h3v2h-3a3 3 0 000 6h3v2h-3a5 5 0 01-5-5zm7-1h4v2h-4v-2zm3-4h3a5 5 0 010 10h-3v-2h3a3 3 0 000-6h-3V7z"/></svg>
+    <span class="link-chip__label"></span>
+    <button class="link-chip__del" title="Remove">×</button>
+  </a>
+</template>
+
+<template id="tpl-checklist-item">
+  <li class="check-item">
+    <button class="check-box" aria-label="toggle">
+      <svg viewBox="0 0 24 24" width="14" height="14"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M4 12l5 5L20 6" class="check-tick"/></svg>
+    </button>
+    <span class="check-label">
+      <span class="check-label__text"></span>
+      <svg class="squiggle" viewBox="0 0 200 20" preserveAspectRatio="none"><path d="M2 10 Q 12 2, 22 10 T 42 10 T 62 10 T 82 10 T 102 10 T 122 10 T 142 10 T 162 10 T 182 10 T 200 10" /></svg>
+    </span>
+    <button class="check-del" title="Remove">×</button>
+  </li>
+</template>
+
+<template id="tpl-gallery-item">
+  <figure class="gallery-item">
+    <img alt="" />
+    <video muted playsinline></video>
+    <figcaption></figcaption>
+  </figure>
+</template>
+
+<template id="tpl-journal-entry">
+  <article class="journal-entry">
+    <div class="journal-entry__row">
+      <span class="journal-entry__day"></span>
+      <span class="journal-entry__time"></span>
+      <span class="journal-entry__loc"></span>
+    </div>
+    <p class="journal-entry__note"></p>
+  </article>
+</template>
+
+<!-- ============ MODALS ============ -->
+
+<div id="modalRoot" class="modal-root" aria-hidden="true">
+  <div class="modal-backdrop"></div>
+
+  <div class="modal" id="modal-link" aria-hidden="true">
+    <h3>Add link</h3>
+    <label>Label<input id="linkLabelInput" type="text" placeholder="e.g. Homestay booking" maxlength="60" /></label>
+    <label>URL<input id="linkUrlInput" type="url" placeholder="https://" /></label>
+    <div class="modal__actions">
+      <button class="btn-ghost" data-close>Cancel</button>
+      <button class="btn-primary" id="linkSaveBtn">Save link</button>
     </div>
   </div>
-</div>
-<div class="toast" id="toast">Link saved</div>
 
-<script>
-/* ============ STARFIELD ============ */
-(function(){
-  const c = document.getElementById('stars');
-  const ctx = c.getContext('2d');
-  let stars = [];
-  function size(){
-    c.width = window.innerWidth; c.height = window.innerHeight;
-    const n = Math.floor((c.width*c.height)/9000);
-    stars = Array.from({length:n},()=>({
-      x:Math.random()*c.width, y:Math.random()*c.height,
-      r:Math.random()*1.3+0.2, base:Math.random()*0.5+0.3,
-      speed:Math.random()*0.02+0.005, phase:Math.random()*Math.PI*2
-    }));
-  }
-  function draw(t){
-    ctx.clearRect(0,0,c.width,c.height);
-    for(const s of stars){
-      const a = s.base + Math.sin(t*s.speed + s.phase)*0.3;
-      ctx.beginPath();
-      ctx.fillStyle = `rgba(233,237,246,${Math.max(0,a)})`;
-      ctx.arc(s.x,s.y,s.r,0,7);
-      ctx.fill();
-    }
-    requestAnimationFrame(draw);
-  }
-  size(); window.addEventListener('resize',size);
-  requestAnimationFrame(draw);
-})();
-
-/* ============ NAV ============ */
-const pages = ['overview','itinerary','budget','links'];
-function goPage(p){
-  pages.forEach(id=>{
-    document.getElementById('page-'+id).classList.toggle('active', id===p);
-  });
-  document.querySelectorAll('nav.tabs button, nav.bottom button').forEach(b=>{
-    b.classList.toggle('active', b.dataset.page===p);
-  });
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-document.querySelectorAll('nav.tabs button, nav.bottom button').forEach(b=>{
-  b.addEventListener('click', ()=>goPage(b.dataset.page));
-});
-
-/* ============ DAY DATA ============ */
-const DAYS = [
-  {n:1, loc:"Jibhi", tag:"Arrival & Mountain Ascent", alt:1600,
-   ride:"Land at Chandigarh (IXC), collect the Himalayan from Sector 42, strap luggage. 240 km via Kiratpur–Nerchowk to Banjar Valley.",
-   explore:"First taste of the hills as the road climbs out of the plains into pine country.",
-   stay:"Backpacker hostel dorm, Jibhi.", stayId:"stay-jibhi",
-   sky:"Open terrace at the hostel — Orion rising over the valley.",
-   offbeat:"Chaini village's older, quieter cousin towers are a short detour off the Jibhi road if you arrive with light to spare.",
-   budget:"Dhaba thalis in Jibhi market run ₹120–150 — better and cheaper than the cafés nearer the waterfall."},
-  {n:2, loc:"Shoja", tag:"Jibhi Trails & High Ridge Ride", alt:2700,
-   ride:"10 km climb from Jibhi to Shoja (2,700 m).",
-   explore:"Morning hike to Jibhi Waterfall over frost-lined wooden bridges. Midday scramble down to the turquoise pools of Kulhi Katandi (\u2018Mini Thailand\u2019).",
-   stay:"Cliffside wooden homestay, Shoja.", stayId:"stay-shoja",
-   sky:"Step onto the homestay balcony — high elevation, zero valley fog, crisp winter Milky Way.",
-   offbeat:"The old forest rest house ridge above Shoja gets almost no foot traffic and has the same view as the paid viewpoints.",
-   budget:"Maggi points on the Jibhi–Shoja road are ₹50–60 and double as free scenic stops."},
-  {n:3, loc:"Jalori Pass → Gushaini", tag:"Snow Summit & Descent", alt:3120,
-   ride:"8 km up to Jalori Pass, then 25 km descent into Gushaini, Tirthan Valley.",
-   explore:"10 km round-trip snow trek to the 360° viewpoint at Raghupur Fort ruins. Rent snow boots at the pass before setting off.",
-   stay:"Riverside backpacker dorm, Gushaini.", stayId:"stay-gushaini",
-   sky:"Riverside lawn chairs, zero light pollution, and the river doing the ambient soundtrack.",
-   offbeat:"Serolsar Lake trailhead starts near the pass — skip it in heavy snow, but the first ridge alone is worth the walk.",
-   budget:"Boot and gaiter rental at the pass is ₹100–150/day — cheaper than anything booked in advance."},
-  {n:4, loc:"Gushaini", tag:"Tirthan Forest & Fortified Towers", alt:1600,
-   ride:"No riding day — full day on foot around Tirthan Valley.",
-   explore:"Morning hike along the Great Himalayan National Park buffer zone to Chhoie waterfall. Afternoon walk through terraced apple orchards to Chehni Kothi, a 45 m 17th-century wood-and-stone tower.",
-   stay:"Riverside backpacker dorm, Gushaini (second night).", stayId:"stay-gushaini",
-   sky:"River pebble bed below the homestay — same clear sky, closer to the water.",
-   offbeat:"Chehni village itself, past the tower, has smaller stone houses in the same style with almost no visitors.",
-   budget:"GHNP buffer-zone entry is nominal (well under ₹100) if you go with a local guide instead of a formal tour."},
-  {n:5, loc:"Shangarh", tag:"Hidden Forests of Bahu", alt:2100,
-   ride:"35 km through the pine forests of Bahu, then 40 km via the Sainj River gorge up to Shangarh.",
-   explore:"Woodland trails around Bahu and the lesser-known Twin Towers of Bahu.",
-   stay:"Mud homestay, Shangarh meadow.", stayId:"stay-shangarh",
-   sky:"Yard bordering the vehicle-free meadow — naked-eye viewing and long-exposure shots right from the door.",
-   offbeat:"The gorge road itself between Bahu and Shangarh is the offbeat stretch — few riders detour this way instead of the main Aut route.",
-   budget:"Homestay meals in Shangarh are usually included or ₹100–150/thali — cheaper than anything in Kasol-adjacent villages."},
-  {n:6, loc:"Shangarh", tag:"Meadow & Ecology Day", alt:2100,
-   ride:"No riding day.",
-   explore:"Day hike to the floating island lake of Pundrik. Afternoon around the meadow perimeter, talking to local shepherds.",
-   stay:"Mud homestay, Shangarh meadow (second night).", stayId:"stay-shangarh",
-   sky:"Second night of astrophotography from the rooftop or lawn — worth the tripod weight.",
-   offbeat:"Pundrik Lake barely registers on trip blogs; the trail is unmarked past the first ridge, so ask at the homestay for the shepherd path.",
-   budget:"No entry fee at Pundrik — just the shared cost of a local guide if the trail is unclear, split between the group."},
-  {n:7, loc:"Barot", tag:"Remote Valley Crossing", alt:1900,
-   ride:"110 km (~4.5 hrs) descent across Aut into the isolated Uhl River gorge.",
-   explore:"British-era hydel project haulage tracks, colonial suspension bridges, dense pine forest.",
-   stay:"Budget riverside wooden lodge, Barot.", stayId:"stay-barot",
-   sky:"Riverside deck, dark sky framed tight by steep valley walls on both sides.",
-   offbeat:"The old haulage track down to the powerhouse is free to walk and almost nobody stops for it.",
-   budget:"Trout thali by the river in Barot runs ₹150–200 and is the best-value meal of the whole trip."},
-  {n:8, loc:"Chandigarh", tag:"Plains Return", alt:350,
-   ride:"215 km (~6 hrs) back to Chandigarh.",
-   explore:"Evening at the Sector 15/22 night food street.",
-   stay:"Transit hostel near Sector 42/43.", stayId:"stay-chandigarh",
-   sky:"City glow from here — the dark-sky stretch of the trip is behind you.",
-   offbeat:"Sector 26 grain market side-streets have food-street prices without the food-street crowd.",
-   budget:"Sector 15/22 street food plates run ₹80–120 — a cheap last night before the flight."},
-  {n:9, loc:"Chandigarh", tag:"Bike Return & Departure", alt:350,
-   ride:"Return the Himalayan 411, collect the deposit, head to IXC for the 12:05 PM flight.",
-   explore:"—",
-   stay:"—", stayId:null,
-   sky:"—",
-   offbeat:"", budget:""}
-];
-
-/* ============ RENDER DAYS ============ */
-const daysList = document.getElementById('daysList');
-DAYS.forEach((d,i)=>{
-  const el = document.createElement('div');
-  el.className = 'day';
-  el.innerHTML = `
-    <div class="day-head" onclick="toggleDay(${i})">
-      <div class="day-num">${String(d.n).padStart(2,'0')}</div>
-      <div class="day-title-wrap">
-        <div class="loc">${d.loc}</div>
-        <div class="tag">${d.tag}</div>
-      </div>
-      <div class="alt-badge mono">${d.alt.toLocaleString()} m</div>
-      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+  <div class="modal" id="modal-checklist-add" aria-hidden="true">
+    <h3>Add packing item</h3>
+    <label>Category
+      <select id="checkCategorySelect">
+        <option value="bike">Bike Spares</option>
+        <option value="cold">Cold Weather Gear</option>
+        <option value="docs">Documents</option>
+        <option value="electronics">Electronics</option>
+      </select>
+    </label>
+    <label>Item<input id="checkItemInput" type="text" placeholder="e.g. Spare clutch cable" maxlength="80" /></label>
+    <div class="modal__actions">
+      <button class="btn-ghost" data-close>Cancel</button>
+      <button class="btn-primary" id="checkAddBtn">Add item</button>
     </div>
-    <div class="day-body"><div class="day-body-inner">
-      <div class="field"><div class="lbl ride">Ride</div><p>${d.ride}</p></div>
-      <div class="field"><div class="lbl explore">Explore</div><p>${d.explore}</p></div>
-      ${d.stay!=='—' ? `<div class="field"><div class="lbl stay">Stay</div><p>${d.stay}</p>
-        ${d.stayId? `<div class="stay-link" data-link-id="${d.stayId}" onclick="openLinkModal('${d.stayId}','${d.loc} stay')" ondblclick="openLinkModal('${d.stayId}','${d.loc} stay')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
-          <span class="ll-text">add stay link</span>
-        </div>`:''}
-      </div>` : ''}
-      <div class="field"><div class="lbl sky">Stargazing</div><p>${d.sky}</p></div>
-      ${(d.offbeat||d.budget) ? `<div class="bonus-box">
-        ${d.offbeat? `<div class="bonus-row offbeat"><div class="dot"></div><div><b>Offbeat bonus —</b> ${d.offbeat}</div></div>`:''}
-        ${d.budget? `<div class="bonus-row budget"><div class="dot"></div><div><b>Budget pick —</b> ${d.budget}</div></div>`:''}
-      </div>`:''}
-    </div></div>
-  `;
-  daysList.appendChild(el);
-});
-function toggleDay(i){
-  const el = daysList.children[i];
-  const wasOpen = el.classList.contains('open');
-  daysList.querySelectorAll('.day.open').forEach(d=>d.classList.remove('open'));
-  if(!wasOpen) el.classList.add('open');
-}
+  </div>
 
-/* ============ ELEVATION SVG ============ */
-(function(){
-  const svg = document.getElementById('elevSvg');
-  const labels = document.getElementById('elevLabels');
-  const W=900,H=220,pad=20;
-  const alts = DAYS.map(d=>d.alt);
-  const min = Math.min(...alts), max = Math.max(...alts);
-  const stepX = (W-pad*2)/(alts.length-1);
-  const pts = alts.map((a,i)=>{
-    const x = pad + i*stepX;
-    const y = H-pad - ( (a-min)/(max-min) ) * (H-pad*2);
-    return [x,y];
-  });
-  // smooth-ish path with slight squiggle jitter for hand-drawn feel
-  let d = `M ${pts[0][0]} ${pts[0][1]}`;
-  for(let i=1;i<pts.length;i++){
-    const [x0,y0]=pts[i-1], [x1,y1]=pts[i];
-    const mx=(x0+x1)/2;
-    d += ` Q ${mx} ${y0}, ${(x0+mx)/2} ${(y0+y1)/2} T ${x1} ${y1}`;
-  }
-  const fillD = d + ` L ${pts[pts.length-1][0]} ${H} L ${pts[0][0]} ${H} Z`;
+  <div class="modal modal--wide" id="modal-journal-add" aria-hidden="true">
+    <h3>New check-in</h3>
+    <label>Day
+      <select id="journalDaySelect"></select>
+    </label>
+    <label>Waypoint / location<input id="journalLocInput" type="text" placeholder="e.g. Raghupur Fort ridge" /></label>
+    <label>Notes<textarea id="journalNoteInput" rows="3" placeholder="What happened, how it felt, conditions..."></textarea></label>
+    <div class="modal__actions">
+      <button class="btn-ghost" data-close>Cancel</button>
+      <button class="btn-primary" id="journalSaveBtn">Log check-in</button>
+    </div>
+  </div>
 
-  svg.innerHTML = `
-    <defs>
-      <linearGradient id="elevFill" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#e8a33d" stop-opacity="0.35"/>
-        <stop offset="100%" stop-color="#e8a33d" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
-    <path d="${fillD}" fill="url(#elevFill)"/>
-    <path d="${d}" fill="none" stroke="#e8a33d" stroke-width="2.4" stroke-linecap="round"/>
-    ${pts.map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="${alts[i]===max?5:3}" fill="${alts[i]===max?'#e8a33d':'#0a0f1c'}" stroke="#e8a33d" stroke-width="2"/>`).join('')}
-  `;
-  labels.innerHTML = DAYS.map(d=>`<span>D${d.n}<br>${d.alt}</span>`).join('');
-})();
+  <div class="modal modal--wide" id="modal-lightbox" aria-hidden="true">
+    <button class="lightbox-close" data-close>×</button>
+    <div id="lightboxContent" class="lightbox-content"></div>
+    <p id="lightboxCaption" class="lightbox-caption"></p>
+  </div>
+</div>
 
-/* ============ BUDGET CALCULATOR ============ */
-const BASE = { bike:11100, fuel:1800, accom:6400, entry:900, days:8 };
-let pax = 2;
-function changePax(delta){
-  pax = Math.min(6, Math.max(1, pax+delta));
-  document.getElementById('paxVal').textContent = pax;
-  recalc();
-}
-function recalc(){
-  const foodPerDay = parseInt(document.getElementById('foodRange').value,10);
-  document.getElementById('foodVal').textContent = foodPerDay;
-  const foodTotal = foodPerDay * BASE.days * pax;
+<input type="file" id="mediaFileInput" accept="image/*,video/*" capture="environment" multiple class="hidden" />
 
-  const rows = [
-    ['Motorcycle rental (8 days + accessories)', BASE.bike],
-    ['Fuel', BASE.fuel],
-    ['Accommodation (8 nights)', BASE.accom],
-    ['Local food', foodTotal],
-    ['Entry & misc', BASE.entry],
-  ];
-  const groupTotal = rows.reduce((s,r)=>s+r[1],0);
-  const perPerson = groupTotal/pax;
+<div id="toast" class="toast"></div>
 
-  document.getElementById('budgetBody').innerHTML = rows.map(([label,total])=>`
-    <tr><td>${label}</td><td>₹${Math.round(total).toLocaleString('en-IN')}</td><td>₹${Math.round(total/pax).toLocaleString('en-IN')}</td></tr>
-  `).join('');
-  document.getElementById('perPersonTotal').textContent = '₹'+Math.round(perPerson).toLocaleString('en-IN');
-  document.getElementById('grandTotal').textContent = '₹'+Math.round(groupTotal).toLocaleString('en-IN');
-  document.getElementById('grandPax').textContent = pax;
-}
-recalc();
-
-/* ============ LINKS PAGE + LOCAL LINK STORAGE ============ */
-const LINK_DEFS = [
-  {id:'bike-rental', title:'Grand Bike Rental — Chandigarh', fallback:'https://www.grandbikerentalchandigarh.com', icon:'bike'},
-  {id:'flight-search', title:'IndiGo — MAA ⇄ IXC', fallback:'https://www.goindigo.in', icon:'plane'},
-  {id:'stay-jibhi', title:'Stay — Jibhi hostel', fallback:'https://www.hostelworld.com', icon:'bed'},
-  {id:'stay-shoja', title:'Stay — Shoja homestay', fallback:'https://www.airbnb.com', icon:'bed'},
-  {id:'stay-gushaini', title:'Stay — Gushaini, Tirthan Valley', fallback:'https://www.airbnb.com', icon:'bed'},
-  {id:'stay-shangarh', title:'Stay — Shangarh mud homestay', fallback:'https://www.airbnb.com', icon:'bed'},
-  {id:'stay-barot', title:'Stay — Barot riverside lodge', fallback:'https://www.airbnb.com', icon:'bed'},
-  {id:'stay-chandigarh', title:'Stay — Chandigarh transit hostel', fallback:'https://www.hostelworld.com', icon:'bed'},
-];
-const ICONS = {
-  bike:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 100-2 1 1 0 000 2zM12 17.5V14l-3-3 4-3 2 3h3"/></svg>',
-  plane:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 16l20-8-8 20-3-8-9-4z"/></svg>',
-  bed:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-7a2 2 0 012-2h14a2 2 0 012 2v7M3 18h18M3 18v2M21 18v2M7 9V6a2 2 0 012-2h6a2 2 0 012 2v3"/></svg>',
-};
-
-function getCustomLinks(){
-  try{ return JSON.parse(localStorage.getItem('himachal-trip-links')||'{}'); }catch(e){ return {}; }
-}
-function setCustomLink(id,url){
-  const all = getCustomLinks();
-  if(url){ all[id]=url; } else { delete all[id]; }
-  localStorage.setItem('himachal-trip-links', JSON.stringify(all));
-}
-
-function renderLinks(){
-  const custom = getCustomLinks();
-  const wrap = document.getElementById('linksList');
-  wrap.innerHTML = LINK_DEFS.map(l=>{
-    const url = custom[l.id] || l.fallback;
-    const isCustom = !!custom[l.id];
-    return `
-    <div class="linkcard" onclick="visitLink('${l.id}')" ondblclick="event.stopPropagation();openLinkModal('${l.id}','${l.title}')">
-      <div class="lc-left">
-        <div class="lc-icon">${ICONS[l.icon]}</div>
-        <div>
-          <div class="lc-title">${l.title}</div>
-          <div class="lc-sub ${isCustom?'linked':''}">${isCustom? 'your link saved' : 'default reference ↗'}</div>
-        </div>
-      </div>
-      <svg class="goarrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10"/></svg>
-    </div>`;
-  }).join('');
-
-  // also refresh in-itinerary / overview stay-link chips
-  document.querySelectorAll('.stay-link').forEach(chip=>{
-    const id = chip.dataset.linkId;
-    const has = !!custom[id];
-    chip.classList.toggle('linked', has);
-    chip.querySelector('.ll-text').textContent = has ? 'link saved ✓' : 'add link';
-  });
-}
-function visitLink(id){
-  const def = LINK_DEFS.find(l=>l.id===id);
-  const custom = getCustomLinks();
-  const url = custom[id] || def.fallback;
-  window.open(url,'_blank','noopener');
-}
-
-/* long-press support (mobile) + dblclick (desktop) already wired via inline handlers;
-   add a touch long-press layer for the stay-link chips and link cards */
-let pressTimer = null;
-document.addEventListener('touchstart', (e)=>{
-  const target = e.target.closest('[data-link-id]');
-  if(!target) return;
-  pressTimer = setTimeout(()=>{
-    const id = target.dataset.linkId;
-    const def = LINK_DEFS.find(l=>l.id===id);
-    const title = def ? def.title : id;
-    openLinkModal(id, title);
-    if(navigator.vibrate) navigator.vibrate(12);
-  }, 550);
-}, {passive:true});
-['touchend','touchmove'].forEach(evt=>{
-  document.addEventListener(evt, ()=>{ if(pressTimer) clearTimeout(pressTimer); }, {passive:true});
-});
-
-/* ============ MODAL ============ */
-let modalTargetId = null;
-function openLinkModal(id, title){
-  modalTargetId = id;
-  document.getElementById('modalTitle').textContent = 'Link — ' + title;
-  const custom = getCustomLinks();
-  document.getElementById('modalInput').value = custom[id] || '';
-  document.getElementById('modalBg').classList.add('show');
-  setTimeout(()=>document.getElementById('modalInput').focus(),150);
-}
-function closeLinkModal(){
-  document.getElementById('modalBg').classList.remove('show');
-  modalTargetId = null;
-}
-function saveLinkModal(){
-  const val = document.getElementById('modalInput').value.trim();
-  if(modalTargetId){
-    setCustomLink(modalTargetId, val);
-    renderLinks();
-    showToast(val ? 'Link saved' : 'Link cleared');
-  }
-  closeLinkModal();
-}
-document.getElementById('modalBg').addEventListener('click', (e)=>{
-  if(e.target.id==='modalBg') closeLinkModal();
-});
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 1600);
-}
-
-renderLinks();
-</script>
+<script src="app.js"></script>
 </body>
 </html>
